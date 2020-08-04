@@ -1,15 +1,13 @@
-TARGET = iphone:13.0:13.0
-ARCHS = arm64 arm64e
-
-FINALPACKAGE = 1
-
-DEBUG = 0
+PACKAGE_VERSION=$(THEOS_PACKAGE_BASE_VERSION)
 
 include $(THEOS)/makefiles/common.mk
 
-TWEAK_NAME = PMreally
-PMreally_FILES = PMreally.xm
-PMreally_CFLAGS = -Wno-deprecated-declarations
+export ARCHS = arm64 arm64e
+export TARGET = iphone:clang:13.0:13.0
+
+TWEAK_NAME = PMConfirm
+$(TWEAK_NAME)_FILES = Tweak.xm
+$(TWEAK_NAME)_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
