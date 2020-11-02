@@ -6,6 +6,7 @@
 
 @interface MTAAlarmEditViewController : UIViewController
   -(MTAlarmEditView*)view;
+  -(UIDatePicker*)timePicker;
 @end
 
 @interface MTAAlarmTableViewController : UIViewController
@@ -14,8 +15,8 @@
 @interface MTUIDigitalClockLabel
 @end
 
-@interface MTUIAlarmView : UIView
-  @property (assign,nonatomic) MTUIDigitalClockLabel *timeLabel;
+@interface MTAAlarmTableViewCell : UIView
+  @property (assign,nonatomic) MTUIDigitalClockLabel *digitalClockLabel;
 @end
 
 %hook MTAAlarmEditViewController
@@ -24,7 +25,7 @@
 {
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     [formatter setDateFormat:@"a"];
-    NSString * ampm = [formatter stringFromDate:[[[self view] timePicker] date]];
+    NSString * ampm = [formatter stringFromDate:[[self timePicker] date]];
 
     if([ampm characterAtIndex:0] == 'P')
     {
@@ -47,10 +48,10 @@
                                                            style:UIAlertActionStyleDefault
                                                          handler:^(UIAlertAction *action)
                                                                 {
-                                                                    NSDate *d = [[(MTAlarmEditView*)[self view] timePicker] date];
+                                                                    NSDate *d = [[self timePicker] date];
                                                                     int offset = -43200;
                                                                     d = [d dateByAddingTimeInterval: offset]; //subtract 12 hours
-                                                                    [[[self view] timePicker] setDate:d animated:YES];
+                                                                    [[self timePicker] setDate:d animated:YES];
                                                                 }
                                    ];
 
@@ -66,12 +67,11 @@
 
 %hook MTAAlarmTableViewController
 
--(void)setAlarmEnabled:(BOOL)arg1 forCell:(id)arg2
+-(void)setAlarmEnabled:(BOOL)arg1 forCell:(MTAAlarmTableViewCell*)arg2
 {
   if (arg1)
   {
-    MTUIAlarmView *alarmView = MSHookIvar<MTUIAlarmView*>(arg2,"_alarmView");
-    int hour = MSHookIvar<int>(alarmView.timeLabel,"_hour");
+    int hour = MSHookIvar<int>(arg2.digitalClockLabel,"_hour");
 
     if(hour >= 12)
     {
